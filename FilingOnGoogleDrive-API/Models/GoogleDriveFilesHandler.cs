@@ -24,7 +24,7 @@ namespace FilingOnGoogleDrive_API.Models
             UserCredential credential;
             using (var stream = new FileStream(HttpContext.Current.Server.MapPath("~/Utilities/client_secret.json"), FileMode.Open, FileAccess.Read))
             {
-                String FilePath = Path.Combine(HttpContext.Current.Server.MapPath("~/Utilities/"), "DriveServiceCredentials.json");
+                string FilePath = Path.Combine(HttpContext.Current.Server.MapPath("~/Utilities/"), "DriveServiceCredentials.json");
 
                 credential = GoogleWebAuthorizationBroker.AuthorizeAsync(
                     GoogleClientSecrets.Load(stream).Secrets,
