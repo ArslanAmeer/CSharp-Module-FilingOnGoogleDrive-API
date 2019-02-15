@@ -1,0 +1,126 @@
+﻿@model IEnumerable<FilingOnGoogleDrive_API.Models.GoogleDriveFiles>
+@{
+    ViewBag.Title = "Google Drive API";
+}
+
+@section Styles{
+    <style type="text/css">
+        #header {
+            width: 100%;
+            background-color: #CCCCCC;
+            text-align: center;
+        }
+
+        #layouttable {
+            border: 0px;
+            width: 100%;
+            font-family: 'Segoe UI';
+        }
+
+            #layouttable td.col1 {
+                width: 20%;
+                vertical-align: top;
+            }
+
+            #layouttable td.col2 {
+                width: 60%;
+                vertical-align: top;
+                background-color: #E8E8E8;
+            }
+
+            #layouttable td.col3 {
+                width: 20%;
+                vertical-align: top;
+            }
+    </style>
+}
+
+<h2>Google Drive API</h2>
+
+<center>
+    <div style="width:80%; text-align:left;">
+        @using (Html.BeginForm("UploadFile", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+        {
+            <p>
+                <label for="file">Upload file:</label>
+                <input type="file" name="file" id="file" />
+                <input type="submit" value="Upload" />
+            </p>
+        }
+    </div>
+
+    <table class="table table-bordered table-striped" border="1">
+        <tr id="header">
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Size)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Version)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.CreatedTime)
+            </th>
+            <th>
+                Download
+            </th>
+            <th>
+                Delete
+            </th>
+        </tr>
+
+        @if (Model.Count() > 0)
+        {
+            foreach (var item in Model)
+            {
+                <tr id="layouttable">
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        @{
+                            long? KiloByte = @item.Size / 1024;
+                            string NewSize = KiloByte + " KB";
+                        }
+                        @NewSize
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Version)
+                    </td>
+                    <td>
+                        @string.Format("{0: MM/dd/yyyy}", Convert.ToDateTime(Html.DisplayFor(modelItem => item.CreatedTime).ToString()))
+                    </td>
+                    <td>
+                        <input type="button" class="DownloadFile" value="Download" data-key=@item.Id style="align-content:center" />
+                    </td>
+                    <td>
+                        @using (Html.BeginForm("DeleteFile", "Home", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                        {
+                            <input type="hidden" name=Id value="@item.Id">
+                            <input type="submit" class="DeleteFile" value="Delete" style="align-content:center" />
+                        }
+
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <td colspan="6">No files found</td>
+        }
+
+    </table>
+
+</center>
+
+@section Scripts{
+    <script type="text/javascript">
+        $(document).on('click', '.DownloadFile', function () {
+            debugger;
+            var fileId = $(this).attr("data-key");
+            window.location.href = '/Home/DownloadFile/' + fileId;
+        });
+    </script>
+}
