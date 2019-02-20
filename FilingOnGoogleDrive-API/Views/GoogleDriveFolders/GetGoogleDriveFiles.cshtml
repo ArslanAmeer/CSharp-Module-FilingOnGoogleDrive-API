@@ -1,0 +1,149 @@
+﻿@model IEnumerable<FilingOnGoogleDrive_API.Models.GoogleDriveFiles>
+
+@{
+    ViewBag.Title = "GetGoogleDriveFiles";
+}
+@section Styles
+{
+    <style type="text/css">
+        table.imagetable {
+            font-family: verdana,arial,sans-serif;
+            font-size: 11px;
+            color: #333333;
+            border-width: 1px;
+            border-color: #999999;
+            border-collapse: collapse;
+        }
+
+            table.imagetable th {
+                background: #b5cfd2 url('cell-blue.jpg');
+                border-width: 1px;
+                padding: 8px;
+                border-style: solid;
+                border-color: #999999;
+            }
+
+            table.imagetable td {
+                /*background: #dcddc0 url('cell-grey.jpg');*/
+                border-width: 1px;
+                padding: 8px;
+                border-style: solid;
+                border-color: #999999;
+            }
+    </style>
+}
+<h2 class="imagetable">Google Drive API v3 - [Root Directory]</h2>
+
+
+
+<center>
+    <div style="width:100%;">
+        <table class="imagetable">
+            <tr>
+                <td>
+                    @using (Html.BeginForm("CreateFolder", "GoogleDriveFolders", FormMethod.Post))
+                    {
+                        <p>
+                            Folder Name :<input type="text" name="FolderName" id="txtFolderName" style="align-content:center" />
+                            <input type="submit" class="CreateFolder" value="Create Folder" style="align-content:center" />
+                        </p>
+                    }
+                </td>
+                <td>
+                    @using (Html.BeginForm("UploadFile", "GoogleDriveFolders", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                    {
+                        <label>File Upload in Root :</label>
+                        <input type="file" name="file" id="file" style="width:176px;" />
+                        <input type="submit" value="Upload" />
+                    }
+                </td>
+            </tr>
+        </table>
+    </div>
+
+    <br />
+
+    <table class="imagetable">
+        <tr id="header">
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Size)
+            </th>
+            <th>
+                Type
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Version)
+            </th>
+            <th>
+                Created Time
+            </th>
+            <th>
+                Upload
+            </th>
+        </tr>
+
+        @if (Model.Count() > 0)
+        {
+            foreach (var item in Model)
+            {
+                if (item.Parents[0] == "0AECv9oO-sSULUk9PVA")
+                {
+                    <tr>
+                        @{
+                            string FileSize = string.Empty;
+                            string Type = string.Empty;
+                            if (@item.Size != null)
+                            {
+                                long? KiloByte = @item.Size;
+                                FileSize = KiloByte + " bytes";
+                            }
+                        }
+                        <td>
+                            @if (@item.Size == null)
+                            {
+                                <a href="@Url.Action("GetContainsInFolder", "GoogleDriveFolders", new { folderId = item.Id })">@item.Name</a>
+                            }
+                            else
+                            { @item.Name}
+                        </td>
+                        <td>
+                            @FileSize
+                        </td>
+                        <td>
+                            @{
+                                if (FileSize == string.Empty) { Type = "Folder"; }
+                                else { Type = "File"; }
+                            }
+                            @Type
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Version)
+                        </td>
+                        <td>
+                            @string.Format("{0: MM/dd/yyyy}", Convert.ToDateTime(Html.DisplayFor(modelItem => item.CreatedTime).ToString()))
+                        </td>
+
+                        <td>
+                            @if (FileSize == string.Empty)
+                            {
+                                using (Html.BeginForm("FileUploadInFolder", "GoogleDriveFolders", FormMethod.Post, new { enctype = "multipart/form-data" }))
+                                {
+                                    <input type="hidden" name=Id value="@item.Id">
+                                    <input type="file" name="file" id="file" style="width:176px;" />
+                                    <input type="submit" value="Upload" />
+                                }
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+        }
+        else
+        {
+            <tr> <td colspan="6">No Records found</td> </tr>
+        }
+    </table>
+</center>
